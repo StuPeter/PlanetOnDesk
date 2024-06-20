@@ -1,0 +1,11 @@
+{
+  "PoD": {
+    "ImageFolder": [
+    ],
+    "TimeInterval": 10
+  },
+  "QFluentWidgets": {
+    "ThemeColor": "#ff2f90b9",
+    "ThemeMode": "Light"
+  }
+}

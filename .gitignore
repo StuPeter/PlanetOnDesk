@@ -1,0 +1,9 @@
+.idea
+__pycache__/
+*.pyc
+.test/.pytest_cache/
+build/
+dist/
+version_file.txt
+main.spec
+app/views/*.ui
