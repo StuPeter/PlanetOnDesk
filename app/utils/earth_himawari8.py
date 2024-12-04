@@ -28,8 +28,8 @@ def get_earth_h8_img_url():
     rounded_time = round_down_time(utc_time)
     utc_time_str = rounded_time.strftime("%Y/%m/%d/%H%M")  # 时间格式化
     img_name = f'{rounded_time.strftime("%Y_%m_%d_%H_%M")}.png'
-    img_url = f'https://himawari.asia/img/D531106/1d/550/{utc_time_str}00_0_0.png'
-    # img_url = f'https://himawari8.nict.go.jp/img/D531106/1d/550/{utc_time_str}00_0_0.png'
+    # img_url = f'https://himawari.asia/img/D531106/1d/550/{utc_time_str}00_0_0.png'
+    img_url = f'https://himawari8.nict.go.jp/img/D531106/1d/550/{utc_time_str}00_0_0.png'
     return img_url, img_name
 
 

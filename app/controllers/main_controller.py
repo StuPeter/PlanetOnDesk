@@ -26,7 +26,7 @@ class WorkerThread(QThread):
                 cfg = json.load(file)
             if cfg:
                 image_folder = get_config_value(cfg, 'PoD', 'ImageFolder')
-                aw = AutoWallpaperSpider(img_url, img_name, image_folder[0])
+                aw = AutoWallpaperSpider(img_url, img_name, image_folder)
                 aw.download_img()
                 aw.set_desktop()
         except Exception as e:
@@ -91,11 +91,11 @@ class MainController:
             if cfg:
                 image_folder = get_config_value(cfg, 'PoD', 'ImageFolder')
                 if image_folder:
-                    aw = AutoWallpaperSpider(img_url, img_name, image_folder[0])
+                    aw = AutoWallpaperSpider(img_url, img_name, image_folder)
                     aw.download_img()
                     aw.set_desktop()
                 else:
-                    w = MessageBox('错误', '未找到壁纸保存路径，请先设置壁纸保存路径', self.mw)
+                    w = MessageBox('提示', '未找到壁纸保存路径，请先设置壁纸保存路径', self.mw)
                     w.yesButton.setText("好的")
                     w.cancelButton.hide()
                     if w.exec():
