@@ -8,9 +8,9 @@
 # @Description:
 #
 #
-from PyQt5.QtCore import QUrl
+from PyQt5.QtCore import QUrl, Qt
 from PyQt5.QtGui import QDesktopServices
-from PyQt5.QtWidgets import QWidget, QFormLayout, QFileDialog
+from PyQt5.QtWidgets import QWidget, QFormLayout, QFileDialog, QScrollArea, QVBoxLayout, QPushButton
 from qfluentwidgets import (
     FluentIcon,
     qconfig,
@@ -24,7 +24,9 @@ from qfluentwidgets import (
     PrimaryPushSettingCard,
     SettingCardGroup,
     FolderValidator,
-    MessageBox
+    MessageBox,
+    SingleDirectionScrollArea
+
 )
 
 from app.views.setting_ui import Ui_SettingForm
@@ -51,17 +53,17 @@ class PoDConfig(QConfig):
         'PoD', 'AutoStart', False,
         OptionsValidator([True, False])
     )
+    autoSave = OptionsConfigItem(
+        'PoD', 'AutoSave', False,
+        OptionsValidator([True, False])
+    )
 
 
 class SettingWindow(QWidget, Ui_SettingForm):
     """Main settings window for the application"""
 
     def __init__(self, parent: Optional[QWidget] = None):
-        """
-        Initialize the settings window
 
-        :param parent: Parent widget, defaults to None
-        """
         super().__init__(parent=parent)
         self.setupUi(self)
         self._init_config()
@@ -74,24 +76,36 @@ class SettingWindow(QWidget, Ui_SettingForm):
 
     def _setup_setting_cards(self):
         """Set up all setting cards in the window"""
-        # Create settings group
+        # 创建设置视图容器
+        view = QWidget(self)
+        layout = QVBoxLayout(view)
+
+        # 创建设置组
         setting_group = SettingCardGroup(title='设置')
-        form_layout = QFormLayout(self)
 
-        # Auto-start setting
+        # 添加各种设置卡片
         self._setup_auto_start_card(setting_group)
-
-        # Wallpaper folder setting
+        self._setup_auto_save_card(setting_group)
         self._setup_folder_card(setting_group)
-
-        # Update interval setting
         self._setup_time_interval_card(setting_group)
-
-        # About section
         self._setup_about_card(setting_group)
 
-        # Add group to layout
-        form_layout.addRow(setting_group)
+        # 将设置组添加到布局
+        layout.addWidget(setting_group)
+        # 创建滚动区域
+        scrollArea = SingleDirectionScrollArea(orient=Qt.Vertical)
+        scrollArea.setWidgetResizable(True)  # 关键设置
+        scrollArea.setWidget(view)
+        # 必须给内部的视图也加上透明背景样式
+        scrollArea.setStyleSheet("QScrollArea{background: transparent; border: none}")
+        view.setStyleSheet("QWidget{background: transparent}")
+
+        # 调整滚动区域大小（如果需要）
+        scrollArea.resize(self.width(), self.height())
+
+        # 将滚动区域添加到主窗口布局
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(scrollArea)
 
     def _setup_auto_start_card(self, setting_group):
         """Setup auto-start setting card"""
@@ -103,6 +117,17 @@ class SettingWindow(QWidget, Ui_SettingForm):
         )
         self.auto_start.checkedChanged.connect(self._on_auto_start_changed)
         setting_group.addSettingCard(self.auto_start)
+
+    def _setup_auto_save_card(self, setting_group):
+        """Setup auto-save images card"""
+        self.auto_save = SwitchSettingCard(
+            configItem=self.cfg.autoSave,
+            icon=FluentIcon.SAVE,
+            title='保存历史壁纸',
+            content='保存过往每一次的壁纸（注：会占用磁盘空间）',
+        )
+        self.auto_save.checkedChanged.connect(self._on_auto_save_changed)
+        setting_group.addSettingCard(self.auto_save)
 
     def _setup_folder_card(self, setting_group):
         """Setup wallpaper folder selection card"""
@@ -152,11 +177,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
             self.folder_card.setContent(folder_path)
 
     def _on_time_interval_changed(self, time_interval):
-        """
-        Handle time interval change
-
-        :param time_interval: Selected time interval
-        """
+        """Handle time interval change"""
         self._show_restart_message()
 
     def _show_restart_message(self):
@@ -167,13 +188,8 @@ class SettingWindow(QWidget, Ui_SettingForm):
         msg_box.exec_()
 
     def _on_auto_start_changed(self, is_checked):
-        """
-        Handle auto-start setting change
-
-        :param is_checked: Whether auto-start is enabled
-        """
+        """Handle auto-start setting change"""
         # Log or perform any necessary actions on auto-start change
-        print(f'Auto-start changed to: {is_checked}')
         try:
             # Get the application executable path
             if getattr(sys, 'frozen', False):
@@ -184,7 +200,6 @@ class SettingWindow(QWidget, Ui_SettingForm):
 
             # Application name for registry
             app_name = 'PoDAutoStart'
-            print('app_path', app_path)
 
             # Perform startup registration based on checkbox
             if is_checked:
@@ -218,6 +233,10 @@ class SettingWindow(QWidget, Ui_SettingForm):
             msg_box.yesButton.setText("好的")
             msg_box.cancelButton.hide()
             msg_box.exec_()
+
+    def _on_auto_save_changed(self, is_checked):
+        """"""
+        print('is_checked', is_checked)
 
     def _open_developer_page(self):
         """Open developer's homepage"""

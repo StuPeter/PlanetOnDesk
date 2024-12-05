@@ -51,22 +51,12 @@ class WallpaperDownloadThread(QThread):
     download_finished = pyqtSignal(bool, str)
 
     def __init__(self, img_url: str, img_name: str, save_folder: str):
-        """
-        初始化下载线程
-
-        :param img_url: 图片URL
-        :param img_name: 图片名称
-        :param save_folder: 保存文件夹
-        """
         super().__init__()
         self.img_url = img_url
         self.img_name = img_name
         self.save_folder = save_folder
 
     def run(self):
-        """
-        后台下载并设置壁纸
-        """
         try:
             aw = AutoWallpaperSpider(self.img_url, self.img_name, self.save_folder)
             aw.download_img()
@@ -88,6 +78,8 @@ class MainController(QObject):
 
         # 配置日志
         self._setup_logging()
+        # 开启
+        self.init_timer()
 
     def _setup_logging(self):
         """配置日志记录器"""
@@ -152,7 +144,10 @@ class MainController(QObject):
                 w.cancelButton.hide()
                 w.exec_()
                 return
-
+            # 判断是否保存历史图片
+            auto_save = ConfigManager.get_config_value(config, 'PoD', 'AutoSave')
+            if not auto_save:
+                img_name = 'h8_earth.png'
             # 启动后台下载线程
             self.download_thread = WallpaperDownloadThread(img_url, img_name, image_folder)
             self.download_thread.download_finished.connect(self._on_download_finished)

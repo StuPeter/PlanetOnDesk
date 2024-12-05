@@ -28,7 +28,17 @@ class HomeWindow(QWidget, Ui_HomeForm):
     def setup_ui(self):
         self.ImageWidget.addImages([
             r'app/resources/earth_template.png',
+            r'app/resources/earth2_template.png',
         ])
-        self.ImageWidget.currentIndexChanged.connect(lambda index: print("当前页面：", index))
+        self.ImageWidget.currentIndexChanged.connect(self._on_change_image)
         self.ImageWidget.setItemSize(QSize(370, 210))
         self.setDesktopButton.clicked.connect(self.controller.start_to_set)
+
+    def _on_change_image(self, index):
+        if index == 0:
+            self.label.setText('啥玩意')
+            self.label_2.setText('啥玩意')
+        else:
+            self.label.setText('啥玩意2')
+            self.label_2.setText('啥玩意2')
+

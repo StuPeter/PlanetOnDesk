@@ -1,5 +1,6 @@
 {
     "PoD": {
+        "AutoSave": false,
         "AutoStart": true,
         "ImageFolder": "F:/Users/QQT/Downloads",
         "TimeInterval": 1
