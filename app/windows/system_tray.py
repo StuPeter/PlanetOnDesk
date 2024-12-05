@@ -19,7 +19,7 @@ class SystemTray(QSystemTrayIcon):
         # 创建菜单
         menu = QMenu()
 
-        show_action = QAction('显示', self)
+        show_action = QAction('打开', self)
         quit_action = QAction('退出', self)
 
         menu.addAction(show_action)

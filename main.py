@@ -9,76 +9,114 @@
 #
 #
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QSize, QEventLoop, QTimer, QEvent
+from PyQt5.QtCore import Qt, QSize, QTimer
 from PyQt5.QtWidgets import QApplication
+import sys
+
 from app.windows.system_tray import SystemTray
-from qfluentwidgets import MSFluentWindow, FluentIcon, SplashScreen, Theme, setTheme, setThemeColor
+from qfluentwidgets import (
+    FluentWindow,
+    MSFluentWindow,
+    FluentIcon,
+    SplashScreen,
+    Theme,
+    setThemeColor
+)
 from qframelesswindow import StandardTitleBar
 from app.windows.setting_window import SettingWindow
 from app.windows.home_window import HomeWindow
-import sys
 
 
 class PoDWindow(MSFluentWindow):
     def __init__(self):
         super().__init__()
-        self.win_title = '时移星动'
-        self.win_icon = 'app/resources/pod.ico'
-        self.system_tray = SystemTray(self, QIcon(self.win_icon))
-        self.setWindowTitle(self.win_title)
-        self.setWindowIcon(QIcon(self.win_icon))
-        self.setFixedSize(720, 480)
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.titleBar.maxBtn.hide()
 
-        # 加载窗口
+        # Constants
+        self.WIN_TITLE = '时移星动'
+        self.WIN_ICON_PATH = 'app/resources/pod.ico'
+
+        # Setup system tray and windows
+        self._setup_system_tray()
+        self._setup_windows()
+
+        # Initialize window and UI
+        self._init_window()
+        self._create_splash_screen()
+        self._init_navigation()
+
+    def _setup_system_tray(self):
+        """Setup system tray with the application icon"""
+        self.system_tray = SystemTray(self, QIcon(self.WIN_ICON_PATH))
+
+    def _setup_windows(self):
+        """Initialize sub-windows"""
         self.setting_window = SettingWindow(self)
         self.home_window = HomeWindow(self)
-        # 创建启动页面
-        self.splashScreen = SplashScreen(self.windowIcon(), self)
-        title_bar = StandardTitleBar(self.splashScreen)
-        title_bar.setIcon(QIcon(self.win_icon))
-        title_bar.setTitle(self.win_title)
-        title_bar.maxBtn.hide()
-        self.splashScreen.setTitleBar(title_bar)
-        self.splashScreen.setIconSize(QSize(128, 128))
-        self.show()
-        # 创建子页面
-        self.create_window()
-        # 关闭启动页面
-        self.splashScreen.close()
 
-    def create_window(self):
-        loop = QEventLoop(self)
+    def _init_window(self):
+        """Configure main window properties"""
+        self.setWindowTitle(self.WIN_TITLE)
+        self.setWindowIcon(QIcon(self.WIN_ICON_PATH))
+        self.setFixedSize(720, 480)
+        self.titleBar.maxBtn.hide()
+
+    def _create_splash_screen(self):
+        """Create and configure splash screen"""
+        self.splash_screen = SplashScreen(self.windowIcon(), self)
+
+        title_bar = StandardTitleBar(self.splash_screen)
+        title_bar.setIcon(QIcon(self.WIN_ICON_PATH))
+        title_bar.setTitle(self.WIN_TITLE)
+        title_bar.maxBtn.hide()
+
+        self.splash_screen.setTitleBar(title_bar)
+        self.splash_screen.setIconSize(QSize(128, 128))
+        self.show()
+
+    def _init_navigation(self):
+        """Initialize navigation interfaces"""
         self.addSubInterface(self.home_window, FluentIcon.HOME, "主页")
         self.addSubInterface(self.setting_window, FluentIcon.SETTING, "设置")
-        QTimer.singleShot(2000, loop.quit)
-        loop.exec()
+
+        # Close splash screen after a short delay
+        QTimer.singleShot(1500, self.splash_screen.close)
+
+    def closeEvent(self, event):
+        # 重写关闭事件，最小化到托盘
+        event.ignore()
+        self.hide()
 
     def changeEvent(self, event):
-        """捕获窗口状态变化事件"""
-        if event.type() == QEvent.WindowStateChange:
-            if self.windowState() & Qt.WindowMinimized:
-                print('Window is minimized')
-                self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
-            else:
-                print('Window is restored')
-                self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        """Handle window state change events"""
+        if event.type() == event.WindowStateChange:
+            # 判断窗口是否最小化
+            minimized = bool(self.windowState() & Qt.WindowMinimized)
+            # 打印状态
+            state = "minimized" if minimized else "restored"
+            print(f"Window is {state}")
+
         super().changeEvent(event)
 
 
-if __name__ == '__main__':
-    # enable dip scale
-    QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+def main():
+    # High DPI scaling configuration
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
 
+    # Create application
     app = QApplication(sys.argv)
 
-    # 设置主题颜色
-    # setTheme(Theme.DARK)
-    setThemeColor('#f43e06')  # 设置主要颜色
+    # Set theme color
+    setThemeColor('#f43e06')
 
-    w = PoDWindow()
-    w.show()
+    # Run the application
+    window = PoDWindow()
+    window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

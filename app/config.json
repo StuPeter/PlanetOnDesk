@@ -1,7 +1,8 @@
 {
     "PoD": {
+        "AutoStart": true,
         "ImageFolder": "F:/Users/QQT/Downloads",
-        "TimeInterval": 10
+        "TimeInterval": 1
     },
     "QFluentWidgets": {
         "ThemeColor": "#ff2f90b9",
