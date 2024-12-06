@@ -37,8 +37,8 @@ import sys
 
 class PoDConfig(QConfig):
     """Configuration class for the application settings"""
-    TIME_INTERVAL_OPTIONS = [1, 10, 20, 30, 60, 'OFF']
-    TIME_INTERVAL_TEXTS = ['1分钟', '10分钟', '20分钟', '30分钟', '60分钟', '从不更新']
+    TIME_INTERVAL_OPTIONS = [10, 20, 30, 60, 'OFF']
+    TIME_INTERVAL_TEXTS = ['10分钟', '20分钟', '30分钟', '60分钟', '从不更新']
 
     timeInterval = OptionsConfigItem(
         'PoD', 'TimeInterval', 10,

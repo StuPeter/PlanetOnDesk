@@ -119,14 +119,6 @@ class MainController(QObject):
                 self.timer.start(interval_ms)
                 self.timer_active = True
 
-    def start_to_set(self):
-        """开始设置壁纸流程"""
-        if not self.timer_active:
-            self.run_set_wallpaper()
-            self.init_timer()
-        else:
-            logging.info("定时器已在运行中")
-
     def run_set_wallpaper(self):
         """执行壁纸下载设置"""
         try:
@@ -166,4 +158,4 @@ class MainController(QObject):
         """下载完成后回调"""
         # 重新启用按钮
         self.mw.setDesktopButton.setEnabled(True)
-        print(success, message)
+        # print(success, message)

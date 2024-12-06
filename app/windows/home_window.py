@@ -32,7 +32,7 @@ class HomeWindow(QWidget, Ui_HomeForm):
         ])
         self.ImageWidget.currentIndexChanged.connect(self._on_change_image)
         self.ImageWidget.setItemSize(QSize(370, 210))
-        self.setDesktopButton.clicked.connect(self.controller.start_to_set)
+        self.setDesktopButton.clicked.connect(self.controller.run_set_wallpaper)
 
     def _on_change_image(self, index):
         if index == 0:

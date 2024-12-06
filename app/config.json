@@ -3,7 +3,7 @@
         "AutoSave": false,
         "AutoStart": true,
         "ImageFolder": "F:/Users/QQT/Downloads",
-        "TimeInterval": 1
+        "TimeInterval": 10
     },
     "QFluentWidgets": {
         "ThemeColor": "#ff2f90b9",
