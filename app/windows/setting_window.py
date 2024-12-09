@@ -14,49 +14,20 @@ from PyQt5.QtWidgets import QWidget, QFormLayout, QFileDialog, QScrollArea, QVBo
 from qfluentwidgets import (
     FluentIcon,
     qconfig,
-    QConfig,
-    OptionsConfigItem,
-    OptionsValidator,
-    ConfigItem,
     SwitchSettingCard,
     PushSettingCard,
     ComboBoxSettingCard,
     PrimaryPushSettingCard,
     SettingCardGroup,
-    FolderValidator,
     MessageBox,
     SingleDirectionScrollArea
-
 )
 
 from app.views.setting_ui import Ui_SettingForm
 from app.utils.auto_start import StartupManager
+from app.windows.pod_config import PoDConfig
 from typing import Optional
 import sys
-
-
-class PoDConfig(QConfig):
-    """Configuration class for the application settings"""
-    TIME_INTERVAL_OPTIONS = [10, 20, 30, 60, 'OFF']
-    TIME_INTERVAL_TEXTS = ['10分钟', '20分钟', '30分钟', '60分钟', '从不更新']
-
-    timeInterval = OptionsConfigItem(
-        'PoD', 'TimeInterval', 10,
-        OptionsValidator(TIME_INTERVAL_OPTIONS),
-        restart=True
-    )
-    imageFolder = ConfigItem(
-        'PoD', 'ImageFolder', "",
-        FolderValidator()
-    )
-    autoStart = OptionsConfigItem(
-        'PoD', 'AutoStart', False,
-        OptionsValidator([True, False])
-    )
-    autoSave = OptionsConfigItem(
-        'PoD', 'AutoSave', False,
-        OptionsValidator([True, False])
-    )
 
 
 class SettingWindow(QWidget, Ui_SettingForm):
@@ -163,7 +134,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
             text='联系开发者',
             icon=FluentIcon.HELP,
             title='关于软件',
-            content='©版权所有2024 圈圈烃. 版本：0.1.0'
+            content='©版权所有2024 圈圈烃. 版本：0.2.0'
         )
         self.about_card.clicked.connect(self._open_developer_page)
         setting_group.addSettingCard(self.about_card)

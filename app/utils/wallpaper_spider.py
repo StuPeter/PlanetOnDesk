@@ -2,9 +2,9 @@
 # _*_ coding:utf-8 _*_  
 #  
 # @Version : 1.0  
-# @Time    : 2024/6/17
+# @Time    : 2024/12/8
 # @Author  : 圈圈烃
-# @File    : wallpaper
+# @File    : wallpaper_spider
 # @Description:
 #
 #

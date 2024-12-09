@@ -3,6 +3,7 @@
         "AutoSave": false,
         "AutoStart": true,
         "ImageFolder": "F:/Users/QQT/Downloads",
+        "ImageSource": "Moon-NASA",
         "TimeInterval": 10
     },
     "QFluentWidgets": {

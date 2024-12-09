@@ -15,34 +15,14 @@ from typing import Optional, Tuple
 
 from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
-from qfluentwidgets import MessageBox
+from qfluentwidgets import (
+    qconfig,
+    MessageBox,
+)
 
-from app.utils.wallpaper import AutoWallpaperSpider
-from app.utils.earth_himawari8 import get_earth_h8_img_url
-
-
-class ConfigManager:
-
-    @staticmethod
-    def load_config(config_path: str = 'app/config.json') -> Optional[dict]:
-        try:
-            with open(config_path, 'r', encoding='utf-8') as file:
-                return json.load(file)
-        except FileNotFoundError:
-            logging.error(f"配置文件未找到: {config_path}")
-        except json.JSONDecodeError:
-            logging.error(f"配置文件解析错误: {config_path}")
-        return None
-
-    @staticmethod
-    def get_config_value(config: dict, *keys):
-        try:
-            for key in keys:
-                config = config[key]
-            return config
-        except (KeyError, TypeError) as e:
-            logging.error(f"获取配置项 {keys} 失败: {e}")
-            return None
+from app.utils.wallpaper_spider import AutoWallpaperSpider
+from app.utils.wallpaper_sources import get_earth_h8_img_url, get_moon_nasa_img_url, get_sun_nasa_img_url
+from app.windows.pod_config import PoDConfig
 
 
 class WallpaperDownloadThread(QThread):
@@ -75,11 +55,17 @@ class MainController(QObject):
         self.timer = QTimer(self.mw)
         self.timer_active = False  # 追踪定时器状态
         self.download_thread = None
+        self._init_config()
 
         # 配置日志
         self._setup_logging()
         # 开启
         self.init_timer()
+
+    def _init_config(self):
+        """Initialize and load configuration"""
+        self.cfg = PoDConfig()
+        qconfig.load('app/config.json', self.cfg)
 
     def _setup_logging(self):
         """配置日志记录器"""
@@ -87,7 +73,7 @@ class MainController(QObject):
         os.makedirs(log_dir, exist_ok=True)
         logging.getLogger(__name__)
         logging.basicConfig(
-            level=logging.INFO,
+            level=logging.ERROR,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
                 logging.FileHandler('app/logs/pod.log', encoding='utf-8'),
@@ -105,41 +91,48 @@ class MainController(QObject):
 
         self.timer.timeout.connect(self.run_set_wallpaper)
 
-        config = ConfigManager.load_config()
-        if config:
-            time_interval = ConfigManager.get_config_value(config, 'PoD', 'TimeInterval')
-
-            if time_interval == 'OFF':
-                self.timer.stop()
-                self.timer_active = False
-                return
-            else:
-                # 将分钟转换为毫秒
-                interval_ms = int(time_interval) * 60 * 1000
-                self.timer.start(interval_ms)
-                self.timer_active = True
+        time_interval = self.cfg.get(self.cfg.timeInterval)
+        if time_interval == 'OFF':
+            self.timer.stop()
+            self.timer_active = False
+            return
+        else:
+            # 将分钟转换为毫秒
+            interval_ms = int(time_interval) * 60 * 1000
+            self.timer.start(interval_ms)
+            self.timer_active = True
 
     def run_set_wallpaper(self):
         """执行壁纸下载设置"""
         try:
-            img_url, img_name = get_earth_h8_img_url()
-
-            config = ConfigManager.load_config()
-            if not config:
-                raise ValueError("未找到配置文件")
-
-            image_folder = ConfigManager.get_config_value(config, 'PoD', 'ImageFolder')
-
+            # 检测图片保存地址
+            image_folder = self.cfg.get(self.cfg.imageFolder)
             if not image_folder:
                 w = MessageBox('提示', '未找到壁纸保存路径，请先设置壁纸保存路径', self.mw)
                 w.yesButton.setText("好的")
                 w.cancelButton.hide()
                 w.exec_()
                 return
+
+            # 判断图片源
+            image_source = self.cfg.get(self.cfg.imageSource)
+            if image_source == 'Earth-H8':
+                img_url, img_name = get_earth_h8_img_url()
+            elif image_source == 'Moon-NASA':
+                img_url, img_name = get_moon_nasa_img_url()
+            elif image_source == 'Sun-NASA':
+                img_url, img_name = get_sun_nasa_img_url()
+            else:
+                w = MessageBox('提示', '未找到壁纸源，请检查配置文件', self.mw)
+                w.yesButton.setText("好的")
+                w.cancelButton.hide()
+                w.exec_()
+                return
+
             # 判断是否保存历史图片
-            auto_save = ConfigManager.get_config_value(config, 'PoD', 'AutoSave')
+            auto_save = self.cfg.get(self.cfg.autoSave)
             if not auto_save:
-                img_name = 'h8_earth.png'
+                img_name = 'pod.png'
             # 启动后台下载线程
             self.download_thread = WallpaperDownloadThread(img_url, img_name, image_folder)
             self.download_thread.download_finished.connect(self._on_download_finished)
