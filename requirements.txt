@@ -4,3 +4,4 @@ PyQt-Fluent-Widgets=1.5.7
 pywin32=306
 requests=2.32.3
 pillow=10.3.0
+winshell=0.6

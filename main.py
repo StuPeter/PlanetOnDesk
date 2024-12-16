@@ -9,8 +9,8 @@
 #
 #
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QSize, QTimer
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt, QSize, QTimer, QSharedMemory
+from PyQt5.QtWidgets import QApplication, QMessageBox
 import sys
 
 from app.windows.system_tray import SystemTray
@@ -99,6 +99,17 @@ class PoDWindow(MSFluentWindow):
 
 
 def main():
+    # 创建共享内存
+    shared_memory = QSharedMemory("PoD_oVx3xi2ykQG78Zo")
+    # 如果共享内存已经存在，说明程序已运行
+    if shared_memory.attach():
+        QMessageBox.warning(None, "警告", "程序已运行！")
+        sys.exit(0)
+    # 尝试创建共享内存（加锁）
+    if not shared_memory.create(1):
+        QMessageBox.critical(None, "错误", "无法创建共享内存！")
+        sys.exit(1)
+
     # High DPI scaling configuration
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough

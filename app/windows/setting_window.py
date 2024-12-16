@@ -134,7 +134,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
             text='联系开发者',
             icon=FluentIcon.HELP,
             title='关于软件',
-            content='©版权所有2024 圈圈烃. 版本：0.2.0'
+            content='©版权所有2024 圈圈烃. 版本：0.2.1'
         )
         self.about_card.clicked.connect(self._open_developer_page)
         setting_group.addSettingCard(self.about_card)
@@ -174,9 +174,11 @@ class SettingWindow(QWidget, Ui_SettingForm):
 
             # Perform startup registration based on checkbox
             if is_checked:
-                success = StartupManager.add_to_startup(app_name, app_path)
+                # success = StartupManager.add_to_startup(app_name, app_path)  # 注册列表
+                success = StartupManager.create_shortcut_for_startup(app_name, app_path)  # 启动文件夹
             else:
-                success = StartupManager.remove_from_startup(app_name)
+                # success = StartupManager.remove_from_startup(app_name)
+                success = StartupManager.remove_shortcut_from_startup(app_name)
 
             # Provide user feedback
             if not success:

@@ -10,6 +10,8 @@
 #
 import winreg
 import logging
+import winshell
+import os
 
 
 class StartupManager:
@@ -72,3 +74,46 @@ class StartupManager:
         except Exception as e:
             logging.error(f"Failed to remove from startup: {e}")
             return False
+
+    @staticmethod
+    def create_shortcut_for_startup(app_name, app_path):
+        # 启动文件夹路径
+        startup_path = os.path.join(
+            os.getenv("APPDATA"), r"Microsoft\Windows\Start Menu\Programs\Startup"
+        )
+        # 快捷方式完整路径
+        shortcut_path = os.path.join(startup_path, f"{app_name}.lnk")
+
+        try:
+            with winshell.shortcut(shortcut_path) as shortcut:
+                shortcut.path = app_path
+                shortcut.working_directory = os.path.dirname(app_path)
+            print(f"快捷方式创建成功: {shortcut_path}")
+            return True
+        except Exception as e:
+            logging.error(f"无法创建快捷方式: {e}")
+            return False
+
+    @staticmethod
+    def remove_shortcut_from_startup(app_name):
+        startup_path = os.path.join(
+            os.getenv("APPDATA"), r"Microsoft\Windows\Start Menu\Programs\Startup"
+        )
+        shortcut_path = os.path.join(startup_path, f"{app_name}.lnk")
+        try:
+            os.remove(shortcut_path)
+            print(f"快捷方式已删除: {shortcut_path}")
+            return True
+        except FileNotFoundError:
+            print(f"快捷方式不存在: {shortcut_path}")
+            return False
+        except Exception as e:
+            print(f"无法删除快捷方式: {e}")
+            return False
+
+
+if __name__ == '__main__':
+    app_name = "PlanetOnDesktop"
+    app_path = r"F:\Users\QQT\Downloads\PlanetOnDesktop-0.2.0\PlanetOnDesktop.exe"
+    # StartupManager.create_shortcut_for_startup(app_path, app_name)
+    StartupManager.remove_shortcut_from_startup(app_name)
