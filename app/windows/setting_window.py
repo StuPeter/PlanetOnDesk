@@ -175,10 +175,10 @@ class SettingWindow(QWidget, Ui_SettingForm):
             # Perform startup registration based on checkbox
             if is_checked:
                 # success = StartupManager.add_to_startup(app_name, app_path)  # 注册列表
-                success = StartupManager.create_shortcut_for_startup(app_name, app_path)  # 启动文件夹
+                success = StartupManager.enable_auto_start(app_name, app_path)  # 启动文件夹
             else:
                 # success = StartupManager.remove_from_startup(app_name)
-                success = StartupManager.remove_shortcut_from_startup(app_name)
+                success = StartupManager.disable_auto_start(app_name)
 
             # Provide user feedback
             if not success:

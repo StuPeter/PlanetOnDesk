@@ -18,6 +18,51 @@ class StartupManager:
     """Manages application auto-start functionality for Windows"""
 
     @staticmethod
+    def enable_auto_start(app_name, app_path):
+        """ 启用开机自启 """
+        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
+        try:
+            # 打开注册表键
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                key_path,
+                0,  # 默认权限
+                winreg.KEY_SET_VALUE
+            )
+            # 设置键值（程序名称和路径）
+            winreg.SetValueEx(
+                key,
+                app_name,  # 自定义程序标识名称
+                0,
+                winreg.REG_SZ,
+                f'"{app_path}"'
+            )
+            winreg.CloseKey(key)
+            return True
+        except Exception as e:
+            print(f"Error enabling auto-start: {e}")
+            return False
+
+    @staticmethod
+    def disable_auto_start(app_name):
+        """ 禁用开机自启 """
+        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        try:
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                key_path,
+                0,
+                winreg.KEY_SET_VALUE
+            )
+            winreg.DeleteValue(key, app_name)  # 删除键值
+            winreg.CloseKey(key)
+            return True
+        except Exception as e:
+            print(f"Error disabling auto-start: {e}")
+            return False
+
+    @staticmethod
     def add_to_startup(app_name, app_path):
         """
         Add application to Windows startup registry
@@ -116,4 +161,6 @@ if __name__ == '__main__':
     app_name = "PlanetOnDesktop"
     app_path = r"F:\Users\QQT\Downloads\PlanetOnDesktop-0.2.0\PlanetOnDesktop.exe"
     # StartupManager.create_shortcut_for_startup(app_path, app_name)
-    StartupManager.remove_shortcut_from_startup(app_name)
+    # StartupManager.remove_shortcut_from_startup(app_name)
+    # StartupManager.enable_auto_start(app_name, app_path)
+    StartupManager.disable_auto_start(app_name)
