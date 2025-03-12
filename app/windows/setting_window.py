@@ -26,6 +26,7 @@ from qfluentwidgets import (
 from app.views.setting_ui import Ui_SettingForm
 from app.utils.auto_start import StartupManager
 from app.windows.pod_config import PoDConfig
+from app.utils.resource_path import get_resource_path
 from typing import Optional
 import sys
 
@@ -43,7 +44,8 @@ class SettingWindow(QWidget, Ui_SettingForm):
     def _init_config(self):
         """Initialize and load configuration"""
         self.cfg = PoDConfig()
-        qconfig.load('app/config.json', self.cfg)
+        config_path = get_resource_path('app/config.json')
+        qconfig.load(config_path, self.cfg)
 
     def _setup_setting_cards(self):
         """Set up all setting cards in the window"""
@@ -172,13 +174,12 @@ class SettingWindow(QWidget, Ui_SettingForm):
             # Application name for registry
             app_name = 'PoDAutoStart'
 
+            start_manager = StartupManager()
             # Perform startup registration based on checkbox
             if is_checked:
-                # success = StartupManager.add_to_startup(app_name, app_path)  # 注册列表
-                success = StartupManager.enable_auto_start(app_name, app_path)  # 启动文件夹
+                success = start_manager.enable_auto_start()  # 启动文件夹
             else:
-                # success = StartupManager.remove_from_startup(app_name)
-                success = StartupManager.disable_auto_start(app_name)
+                success = start_manager.disable_auto_start()
 
             # Provide user feedback
             if not success:

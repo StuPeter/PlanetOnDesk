@@ -25,6 +25,7 @@ from qfluentwidgets import (
 from qframelesswindow import StandardTitleBar
 from app.windows.setting_window import SettingWindow
 from app.windows.home_window import HomeWindow
+from app.utils.resource_path import get_resource_path
 
 
 class PoDWindow(MSFluentWindow):
@@ -33,7 +34,7 @@ class PoDWindow(MSFluentWindow):
 
         # Constants
         self.WIN_TITLE = '时移星动'
-        self.WIN_ICON_PATH = 'app/resources/pod.ico'
+        self.WIN_LOGO_PATH = get_resource_path('app/resources/pod.ico')
 
         # Setup system tray and windows
         self._setup_system_tray()

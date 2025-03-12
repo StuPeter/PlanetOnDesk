@@ -25,6 +25,7 @@ from qfluentwidgets import (
 from app.controllers.main_controller import MainController
 from app.views.home_ui import Ui_HomeForm
 from app.windows.pod_config import PoDConfig
+from app.utils.resource_path import get_resource_path
 
 
 class HomeWindow(QWidget, Ui_HomeForm):
@@ -40,13 +41,13 @@ class HomeWindow(QWidget, Ui_HomeForm):
     def _init_config(self):
         """Initialize and load configuration"""
         self.cfg = PoDConfig()
-        qconfig.load('app/config.json', self.cfg)
+        config_path = get_resource_path('app/config.json')
+        qconfig.load(config_path, self.cfg)
 
     def setup_ui(self):
-        self.ImageWidget.addImages([
-            r'app/resources/earth_template.png',
-            r'app/resources/moon_template.jpg',
-        ])
+        image1 = get_resource_path('app/resources/earth_template.png')
+        image2 = get_resource_path('app/resources/moon_template.jpg')
+        self.ImageWidget.addImages([image1, image2])
         # 同步当前模式
         image_source = self.cfg.get(self.cfg.imageSource)
         if image_source == 'Earth-H8':

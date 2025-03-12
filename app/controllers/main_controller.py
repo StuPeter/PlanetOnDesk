@@ -9,6 +9,7 @@
 #
 #
 import os
+import sys
 import json
 import logging
 from typing import Optional, Tuple
@@ -23,6 +24,7 @@ from qfluentwidgets import (
 from app.utils.wallpaper_spider import AutoWallpaperSpider
 from app.utils.wallpaper_sources import get_earth_h8_img_url, get_moon_nasa_img_url, get_sun_nasa_img_url
 from app.windows.pod_config import PoDConfig
+from app.utils.resource_path import get_resource_path
 
 
 class WallpaperDownloadThread(QThread):
@@ -65,18 +67,20 @@ class MainController(QObject):
     def _init_config(self):
         """Initialize and load configuration"""
         self.cfg = PoDConfig()
-        qconfig.load('app/config.json', self.cfg)
+        config_path = get_resource_path('app/config.json')
+        qconfig.load(config_path, self.cfg)
 
     def _setup_logging(self):
         """配置日志记录器"""
-        log_dir = 'app/logs'
+        log_dir = get_resource_path('app/logs')
         os.makedirs(log_dir, exist_ok=True)
         logging.getLogger(__name__)
+        logger_path = get_resource_path('app/logs/pod.log')
         logging.basicConfig(
             level=logging.ERROR,
             format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
             handlers=[
-                logging.FileHandler('app/logs/pod.log', encoding='utf-8'),
+                logging.FileHandler(logger_path, encoding='utf-8'),
                 logging.StreamHandler()  # 控制台输出
             ]
         )
