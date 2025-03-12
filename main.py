@@ -34,7 +34,7 @@ class PoDWindow(MSFluentWindow):
 
         # Constants
         self.WIN_TITLE = '时移星动'
-        self.WIN_LOGO_PATH = get_resource_path('app/resources/pod.ico')
+        self.WIN_ICON_PATH = get_resource_path('app/resources/pod.ico')
 
         # Setup system tray and windows
         self._setup_system_tray()
