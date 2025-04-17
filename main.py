@@ -122,7 +122,7 @@ def main():
     app = QApplication(sys.argv)
 
     # Set theme color
-    setThemeColor('#f43e06')
+    setThemeColor('#2f90b9')
 
     # Run the application
     window = PoDWindow()

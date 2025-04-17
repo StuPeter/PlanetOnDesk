@@ -2,8 +2,8 @@
     "PoD": {
         "AutoSave": false,
         "AutoStart": false,
-        "ImageFolder": "F:/Users/QQT/Pictures",
-        "ImageSource": "Earth-H8",
+        "ImageFolder": "F:/Users/QQT/Documents/Python Projects/PlanetOnDesktop",
+        "ImageSource": "Moon-NASA",
         "TimeInterval": 10
     },
     "QFluentWidgets": {

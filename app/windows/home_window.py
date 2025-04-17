@@ -20,8 +20,10 @@ from qfluentwidgets import (
     PrimaryPushSettingCard,
     SettingCardGroup,
     MessageBox,
-    SingleDirectionScrollArea
+    SingleDirectionScrollArea,
+    setThemeColor
 )
+
 from app.controllers.main_controller import MainController
 from app.views.home_ui import Ui_HomeForm
 from app.windows.pod_config import PoDConfig
@@ -73,6 +75,7 @@ class HomeWindow(QWidget, Ui_HomeForm):
                 "数据来源：https://himawari8.nict.go.jp/zh/himawari8-image.htm\n"
             )
             self.cfg.set(self.cfg.imageSource, 'Earth-H8')
+            setThemeColor('#2f90b9')
         elif index == 1:
             self.label.setText('NASA 月相数据')
             self.label_2.setText(
@@ -81,6 +84,7 @@ class HomeWindow(QWidget, Ui_HomeForm):
                 "数据来源：https://svs.gsfc.nasa.gov/gallery/moonphase/\n"
             )
             self.cfg.set(self.cfg.imageSource, 'Moon-NASA')
+            setThemeColor('#b7ae8f')
         else:
             self.label.setText('哦豁！你看到BUG了')
             self.label_2.setText(
