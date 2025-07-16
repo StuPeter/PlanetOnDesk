@@ -136,7 +136,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
             text='联系开发者',
             icon=FluentIcon.HELP,
             title='关于软件',
-            content='©版权所有2024 圈圈烃. 版本：0.2.1'
+            content='©版权所有2025 圈圈烃. 版本：0.3.0'
         )
         self.about_card.clicked.connect(self._open_developer_page)
         setting_group.addSettingCard(self.about_card)

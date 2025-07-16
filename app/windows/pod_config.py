@@ -41,5 +41,5 @@ class PoDConfig(QConfig):
     )
     imageSource = OptionsConfigItem(
         'PoD', 'ImageSource', 'Earth-H8',
-        OptionsValidator(['Earth-H8', 'Moon-NASA', 'Sun-NASA'])
+        OptionsValidator(['Earth-H8', 'Earth-H8-16', 'Moon-NASA', 'Sun-NASA'])
     )

@@ -47,15 +47,21 @@ class HomeWindow(QWidget, Ui_HomeForm):
         qconfig.load(config_path, self.cfg)
 
     def setup_ui(self):
-        image1 = get_resource_path('app/resources/earth_template.png')
-        image2 = get_resource_path('app/resources/moon_template.jpg')
-        self.ImageWidget.addImages([image1, image2])
+        image1 = get_resource_path('app/resources/earth_template.jpg')
+        image2 = get_resource_path('app/resources/earth_16_template.jpg')
+        image3 = get_resource_path('app/resources/moon_template.jpg')
+        image4 = get_resource_path('app/resources/sun_template.jpg')
+        self.ImageWidget.addImages([image1, image2, image3, image4])
         # 同步当前模式
         image_source = self.cfg.get(self.cfg.imageSource)
         if image_source == 'Earth-H8':
             current_index = 0
-        elif image_source == 'Moon-NASA':
+        elif image_source == 'Earth-H8-16':
             current_index = 1
+        elif image_source == 'Moon-NASA':
+            current_index = 2
+        elif image_source == 'Sun-NASA':
+            current_index = 3
         else:
             current_index = 0
         self.ImageWidget.setCurrentIndex(current_index)
@@ -66,7 +72,6 @@ class HomeWindow(QWidget, Ui_HomeForm):
         self.setDesktopButton.clicked.connect(self.controller.run_set_wallpaper)
 
     def _on_change_image(self, index):
-
         if index == 0:
             self.label.setText('向日葵8号气象卫星')
             self.label_2.setText(
@@ -77,6 +82,15 @@ class HomeWindow(QWidget, Ui_HomeForm):
             self.cfg.set(self.cfg.imageSource, 'Earth-H8')
             setThemeColor('#2f90b9')
         elif index == 1:
+            self.label.setText('地球卫星图像(超大)')
+            self.label_2.setText(
+                "简介：更高分辨率的合成地球影像，因为一次需要获取多张影像，网络不佳情况下可能会失败。\n\n"
+                "推荐频率：每小时更新一次，实时捕捉地球天气和光影变化\n\n"
+                "数据来源：https://himawari8.nict.go.jp/zh/himawari8-image.htm\n"
+            )
+            self.cfg.set(self.cfg.imageSource, 'Earth-H8-16')
+            setThemeColor('#30394b')
+        elif index == 2:
             self.label.setText('NASA 月相数据')
             self.label_2.setText(
                 "简介：展示月球的实时变化，精确显示每晚的月相情况，包括新月、满月等不同阶段。\n\n"
@@ -85,13 +99,22 @@ class HomeWindow(QWidget, Ui_HomeForm):
             )
             self.cfg.set(self.cfg.imageSource, 'Moon-NASA')
             setThemeColor('#b7ae8f')
+        elif index == 3:
+            self.label.setText('NASA SDO太阳')
+            self.label_2.setText(
+                "简介：NASA 的太阳动力学天文台，能够以极高分辨率和多波段成像方式持续监测太阳表面和大气层（日冕）。\n\n"
+                "推荐频率：每小时更新一次，可关注太阳动态变化。\n\n"
+                "数据来源：https://sdo.gsfc.nasa.gov/\n"
+            )
+            self.cfg.set(self.cfg.imageSource, 'Sun-NASA')
+            setThemeColor('#ffa205')
         else:
             self.label.setText('哦豁！你看到BUG了')
             self.label_2.setText(
                 "简介：记得反馈给我哈\n\n"
                 "联系：rasfu_1@163.com\n"
             )
-            self.cfg.set(self.cfg.imageSource, 'Earth-H8')
+            self.cfg.set(self.cfg.imageSource, 'FUCK')
         # 设置标签的自动换行
         self.label_2.setWordWrap(True)
         # 设置标签的宽度

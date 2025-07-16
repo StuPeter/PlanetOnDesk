@@ -22,7 +22,8 @@ from qfluentwidgets import (
 )
 
 from app.utils.wallpaper_spider import AutoWallpaperSpider
-from app.utils.wallpaper_sources import get_earth_h8_img_url, get_moon_nasa_img_url, get_sun_nasa_img_url
+from app.utils.wallpaper_sources import get_earth_h8_img_url, get_moon_nasa_img_url, get_sun_nasa_img_url, \
+    get_earth_h8_4x4_img_urls
 from app.windows.pod_config import PoDConfig
 from app.utils.resource_path import get_resource_path
 
@@ -32,17 +33,17 @@ class WallpaperDownloadThread(QThread):
 
     download_finished = pyqtSignal(bool, str)
 
-    def __init__(self, img_url: str, img_name: str, save_folder: str):
+    def __init__(self, img_url: str, img_name: str, save_folder: str, img_fill: bool = False):
         super().__init__()
         self.img_url = img_url
         self.img_name = img_name
         self.save_folder = save_folder
+        self.img_fill = img_fill
 
     def run(self):
         try:
-            aw = AutoWallpaperSpider(self.img_url, self.img_name, self.save_folder)
-            aw.download_img()
-            aw.set_desktop()
+            aw = AutoWallpaperSpider(self.img_url, self.img_name, self.save_folder, self.img_fill)
+            aw.run()
             self.download_finished.emit(True, "壁纸下载成功")
         except Exception as e:
             logging.error(f"壁纸下载失败: {e}")
@@ -121,11 +122,13 @@ class MainController(QObject):
             # 判断图片源
             image_source = self.cfg.get(self.cfg.imageSource)
             if image_source == 'Earth-H8':
-                img_url, img_name = get_earth_h8_img_url()
+                img_urls, img_name, img_fill = get_earth_h8_img_url()
+            elif image_source == 'Earth-H8-16':
+                img_urls, img_name, img_fill = get_earth_h8_4x4_img_urls()
             elif image_source == 'Moon-NASA':
-                img_url, img_name = get_moon_nasa_img_url()
+                img_urls, img_name, img_fill = get_moon_nasa_img_url()
             elif image_source == 'Sun-NASA':
-                img_url, img_name = get_sun_nasa_img_url()
+                img_urls, img_name, img_fill = get_sun_nasa_img_url()
             else:
                 w = MessageBox('提示', '未找到壁纸源，请检查配置文件', self.mw)
                 w.yesButton.setText("好的")
@@ -138,14 +141,14 @@ class MainController(QObject):
             if not auto_save:
                 img_name = 'pod.png'
             # 启动后台下载线程
-            self.download_thread = WallpaperDownloadThread(img_url, img_name, image_folder)
+            self.download_thread = WallpaperDownloadThread(img_urls, img_name, image_folder, img_fill=img_fill)
             self.download_thread.download_finished.connect(self._on_download_finished)
 
             # 禁用按钮防止重复点击
             self.mw.setDesktopButton.setEnabled(False)
             self.download_thread.start()
 
-            logging.info(f'开始下载壁纸: {img_url}')
+            logging.info(f'开始下载壁纸: {img_urls}')
 
         except Exception as e:
             logging.error(f'设置壁纸发生错误: {e}')
