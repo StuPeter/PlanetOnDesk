@@ -3,11 +3,11 @@
         "AutoSave": false,
         "AutoStart": false,
         "ImageFolder": "F:/Users/QQT/Documents/Python Projects/PlanetOnDesktop",
-        "ImageSource": "Moon-NASA",
+        "ImageSource": "Earth-H8-16",
         "TimeInterval": 10
     },
     "QFluentWidgets": {
-        "ThemeColor": "#ffb7ae8f",
+        "ThemeColor": "#ff2f90b9",
         "ThemeMode": "Light"
     }
 }
