@@ -8,12 +8,6 @@
 # @Description:
 #
 #
-import os
-import sys
-import json
-import logging
-from typing import Optional, Tuple
-
 from PyQt5.QtCore import QObject, QTimer, QThread, pyqtSignal
 from PyQt5.QtWidgets import QMessageBox
 from qfluentwidgets import (
@@ -26,6 +20,9 @@ from app.utils.wallpaper_sources import get_earth_h8_img_url, get_moon_nasa_img_
     get_earth_h8_4x4_img_urls
 from app.windows.pod_config import PoDConfig
 from app.utils.resource_path import get_resource_path
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WallpaperDownloadThread(QThread):
@@ -46,7 +43,7 @@ class WallpaperDownloadThread(QThread):
             aw.run()
             self.download_finished.emit(True, "壁纸下载成功")
         except Exception as e:
-            logging.error(f"壁纸下载失败: {e}")
+            logger.error(f"壁纸下载失败: {e}")
             self.download_finished.emit(False, str(e))
 
 
@@ -59,9 +56,8 @@ class MainController(QObject):
         self.timer_active = False  # 追踪定时器状态
         self.download_thread = None
         self._init_config()
+        logger.info("MainController 初始化完成。")  # 这是一个示例日志
 
-        # 配置日志
-        self._setup_logging()
         # 开启
         self.init_timer()
 
@@ -71,28 +67,13 @@ class MainController(QObject):
         config_path = get_resource_path('app/config.json')
         qconfig.load(config_path, self.cfg)
 
-    def _setup_logging(self):
-        """配置日志记录器"""
-        log_dir = get_resource_path('app/logs')
-        os.makedirs(log_dir, exist_ok=True)
-        logging.getLogger(__name__)
-        logger_path = get_resource_path('app/logs/pod.log')
-        logging.basicConfig(
-            level=logging.ERROR,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.FileHandler(logger_path, encoding='utf-8'),
-                logging.StreamHandler()  # 控制台输出
-            ]
-        )
-
     def init_timer(self):
         """初始化定时器"""
 
         # 如果定时器已经激活，先停止
         if self.timer_active:
             self.timer.stop()
-            logging.info("停止已存在的定时器")
+            logger.info("停止已存在的定时器")
 
         self.timer.timeout.connect(self.run_set_wallpaper)
 
@@ -148,10 +129,10 @@ class MainController(QObject):
             self.mw.setDesktopButton.setEnabled(False)
             self.download_thread.start()
 
-            logging.info(f'开始下载壁纸: {img_urls}')
+            logger.info(f'开始下载壁纸: {img_urls}')
 
         except Exception as e:
-            logging.error(f'设置壁纸发生错误: {e}')
+            logger.error(f'设置壁纸发生错误: {e}')
             QMessageBox.critical(self.mw, '错误', f'壁纸下载失败: {e}')
 
     def _on_download_finished(self, success: bool, message: str):

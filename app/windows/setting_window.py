@@ -29,6 +29,9 @@ from app.windows.pod_config import PoDConfig
 from app.utils.resource_path import get_resource_path
 from typing import Optional
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SettingWindow(QWidget, Ui_SettingForm):
@@ -174,7 +177,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
             # Application name for registry
             app_name = 'PoDAutoStart'
 
-            start_manager = StartupManager()
+            start_manager = StartupManager(app_name=app_name, app_path=app_path)
             # Perform startup registration based on checkbox
             if is_checked:
                 success = start_manager.enable_auto_start()  # 启动文件夹
@@ -202,7 +205,7 @@ class SettingWindow(QWidget, Ui_SettingForm):
 
         except Exception as e:
             # Handle any unexpected errors
-            # logging.error(f"Auto-start configuration error: {e}")
+            logger.error(f"配置开机启动时发生意外错误: {e}")
             msg_box = MessageBox('错误', '配置开机启动时发生意外错误。', self)
             msg_box.yesButton.setText("好的")
             msg_box.cancelButton.hide()
