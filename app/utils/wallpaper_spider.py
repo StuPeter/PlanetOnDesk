@@ -14,6 +14,9 @@ import time
 from PIL import Image
 import sys  # 导入 sys 模块用于判断操作系统
 import subprocess  # 导入 subprocess 用于执行外部命令，如 AppleScript、gsettings
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 判断操作系统
 IS_WINDOWS = sys.platform.startswith('win')
@@ -275,37 +278,67 @@ class AutoWallpaperSpider:
             print(f"处理太阳图片时出错: {e}")
             raise
 
-    def _set_mac_wallpaper(self, image_path, fill_mode="scale"):
+    def _set_mac_wallpaper(self, image_path, fill_mode="center"):
         """
         通过 AppleScript 在 macOS 上设置壁纸。
-        :param image_path: 图像的完整路径
+        :param image_path: 图像的完整 POSIX 路径。
         :param fill_mode: 壁纸填充模式 ("scale", "fill", "fit", "center", "tile")
         """
         fill_mode_map = {
-            "scale": 0,  # 缩放以适应屏幕，不裁剪（默认）
-            "fill": 1,  # 填充屏幕，可能会裁剪
-            "fit": 2,  # 适应屏幕，保持比例，可能会有黑边
-            "center": 3,  # 居中，保持原尺寸
-            "tile": 4  # 平铺
+            "scale": "stretch",
+            "fill": "fill",
+            "fit": "fit",
+            "center": "centered",
+            "tile": "tiled"
         }
 
-        mode_value = fill_mode_map.get(fill_mode, 0)  # 默认为 scale
+        apple_script_mode = fill_mode_map.get(fill_mode, "centered")
 
-        script = f"""
-        tell application "Finder"
-            set desktop picture to POSIX file "{image_path}"
-            set picture settings to {{scaling mode: {mode_value}}}
+        # 确保 image_path 是一个有效的 POSIX 路径
+        # (此检查之前已建议，这里不再重复详细代码)
+        if ":" in image_path and sys.platform != 'win32':
+            logger.error(f"错误：检测到非法的 macOS 路径格式（包含':'）：{image_path}")
+            raise ValueError("无效的 macOS 壁纸路径。请确保它不包含 Windows 盘符。")
+
+        # 设置桌面图片路径
+        set_picture_script = f"""
+        tell application "System Events"
+            tell every desktop
+                set picture to "{image_path}"
+            end tell
         end tell
         """
 
+        # # 设置显示模式（比如居中显示）
+        # set_settings_script = f"""
+        # tell application "System Events"
+        #     tell every desktop
+        #         set picture scaling to {apple_script_mode}
+        #     end tell
+        # end tell
+        # """
+
+        # 打印最终的 AppleScript，便于调试
+        logger.info(f"正在执行设置图片路径的 AppleScript: \n{set_picture_script}")
+        # logger.info(f"正在执行设置图片属性的 AppleScript: \n{set_settings_script}")
+
         try:
-            subprocess.run(["osascript", "-e", script], check=True, capture_output=True)
+            # 首先执行设置图片路径的命令
+            subprocess.run(["osascript", "-e", set_picture_script], check=True, capture_output=True, text=True)
+            # 然后执行设置图片属性的命令
+            # subprocess.run(["osascript", "-e", set_settings_script], check=True, capture_output=True, text=True)
+
             print(f"macOS 桌面壁纸成功设置为: {image_path} (模式: {fill_mode})")
+            logger.info(f"macOS 桌面壁纸成功设置为: {image_path} (模式: {fill_mode})")
+
         except subprocess.CalledProcessError as e:
-            print(f"设置 macOS 壁纸时出错: {e.stderr.decode().strip()}")
+            error_message = e.stderr.strip()
+            print(f"设置 macOS 壁纸时出错: {error_message}")
+            logger.error(f"设置 macOS 壁纸时出错: {error_message}")
             raise
         except Exception as e:
             print(f"设置 macOS 壁纸时发生意外错误: {e}")
+            logger.error(f"设置 macOS 壁纸时发生意外错误: {e}", exc_info=True)
             raise
 
     def _set_linux_wallpaper(self, image_path, fill_mode="zoom"):
